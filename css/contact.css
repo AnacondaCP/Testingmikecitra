@@ -1,0 +1,61 @@
+.about-grid{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:40px;
+
+align-items:center;
+
+}
+
+.about-img img{
+
+width:100%;
+
+border-radius:20px;
+
+box-shadow:0 0 30px rgba(0,0,0,0.5);
+
+}
+
+.about-text h1{
+
+font-size:40px;
+
+margin-bottom:10px;
+
+}
+
+.about-text h3{
+
+color:#38bdf8;
+
+margin-bottom:20px;
+
+}
+
+.trust-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
+gap:20px;
+
+margin-top:30px;
+
+}
+
+/* responsive */
+
+@media(max-width:768px){
+
+.about-grid{
+
+grid-template-columns:1fr;
+
+}
+
+}
