@@ -86,3 +86,48 @@ height:120px;
 margin-bottom:10px;
 padding:10px;
 }
+
+/* Penyesuaian Dashboard */
+.content {
+    background: #0f172a;
+    min-height: 100vh;
+}
+
+.card-admin {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 12px;
+    margin-top: 20px;
+    border: 1px solid #334155;
+    max-width: 600px;
+}
+
+.card-admin input, .card-admin textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: white;
+}
+
+.card-admin button {
+    width: 100%;
+    padding: 12px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.card-admin button:hover {
+    background: #1d4ed8;
+}
+
+.page h1 {
+    color: #38bdf8;
+    margin-bottom: 10px;
+}

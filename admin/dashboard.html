@@ -1,130 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-
-<title>MikeCitra Dashboard</title>
-<link rel="stylesheet" href="admin.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MikeCitra Power Dashboard</title>
+    <link rel="stylesheet" href="admin.css">
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
-
 <body>
 
 <div class="dashboard">
+    <div class="sidebar">
+        <h2>MikeCitra Admin</h2>
+        <ul>
+            <li onclick="showPage('home')">🏠 Dashboard</li>
+            <li onclick="showPage('upload')" id="ownerMenu">📊 Update Premi (Excel)</li>
+            <li onclick="showPage('produk')">🎁 Kelola Produk</li>
+            <li onclick="showPage('testimoni')">💬 Testimoni</li>
+            <li onclick="logout()" style="color: #ef4444;">🚪 Logout</li>
+        </ul>
+    </div>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
+    <div class="content" style="padding: 20px; color: white; width: 100%;">
+        
+        <div id="home" class="page">
+            <h1>Halo, Selamat Datang!</h1>
+            <p>Silakan pilih menu di samping untuk mulai mengelola website.</p>
+        </div>
 
-<h2>MikeCitra</h2>
+        <div id="upload" class="page" style="display:none;">
+            <h1>Update Data Premi (XLSX)</h1>
+            <div class="card-admin">
+                <p>Upload file .xlsx untuk sinkronisasi harga premi kalkulator secara otomatis.</p>
+                <input type="file" id="excelFile" accept=".xlsx, .xls">
+                <button onclick="prosesExcel()" style="background:#10b981;">SINKRON DATA SEKARANG</button>
+                <p id="statusUpload"></p>
+            </div>
+        </div>
 
-<ul>
+        <div id="produk" class="page" style="display:none;">
+            <h1>Tambah Produk Baru</h1>
+            <div class="card-admin">
+                <input type="text" id="prodName" placeholder="Nama Produk Asuransi">
+                <input type="text" id="prodImg" placeholder="Link URL Foto Produk">
+                <textarea id="prodDesc" placeholder="Deskripsi Singkat Produk"></textarea>
+                <button onclick="simpanProduk()">TAMBAH PRODUK</button>
+            </div>
+        </div>
 
-<li onclick="showPage('home')">Dashboard</li>
+        <div id="testimoni" class="page" style="display:none;">
+            <h1>Edit Testimoni</h1>
+            <div class="card-admin">
+                <input type="text" id="testiName" placeholder="Nama Client">
+                <textarea id="testiText" placeholder="Isi Testimoni"></textarea>
+                <button onclick="simpanTesti()">SIMPAN TESTIMONI</button>
+            </div>
+        </div>
 
-<li onclick="showPage('upload')" id="ownerMenu">
-Upload Premi Sheet
-</li>
-
-<li onclick="showPage('blog')">
-Edit Blog
-</li>
-
-<li onclick="showPage('produk')">
-Edit Produk
-</li>
-
-<li onclick="showPage('testimoni')">
-Edit Testimoni
-</li>
-
-<li onclick="showPage('logs')">
-Logs
-</li>
-
-<li onclick="logout()">
-Logout
-</li>
-
-</ul>
-
-</div>
-
-
-<!-- CONTENT -->
-<div class="content">
-
-<div id="home" class="page">
-
-<h1>Admin Dashboard</h1>
-
-<p>Selamat datang di dashboard MikeCitra.</p>
-
-</div>
-
-
-<div id="upload" class="page">
-
-<h1>Upload Data Premi</h1>
-
-<input type="file">
-
-<button>Upload XLS / Sheet</button>
-
-</div>
-
-
-<div id="blog" class="page">
-
-<h1>Edit Blog</h1>
-
-<textarea placeholder="Tulis artikel baru..."></textarea>
-
-<button>Simpan</button>
-
-</div>
-
-
-<div id="produk" class="page">
-
-<h1>Edit Produk</h1>
-
-<input placeholder="Nama produk">
-
-<textarea placeholder="Deskripsi"></textarea>
-
-<button>Simpan</button>
-
-</div>
-
-
-<div id="testimoni" class="page">
-
-<h1>Edit Testimoni</h1>
-
-<textarea placeholder="Testimoni baru"></textarea>
-
-<button>Simpan</button>
-
-</div>
-
-
-<div id="logs" class="page">
-
-<h1>Activity Logs</h1>
-
-<div id="logData">
-
-Belum ada aktivitas
-
-</div>
-
-</div>
-
-
-</div>
-
+    </div>
 </div>
 
 <script src="admin.js"></script>
-
 </body>
 </html>
