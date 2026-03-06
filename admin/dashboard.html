@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>MikeCitra Dashboard</title>
+<link rel="stylesheet" href="admin.css">
+
+</head>
+
+<body>
+
+<div class="dashboard">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+<h2>MikeCitra</h2>
+
+<ul>
+
+<li onclick="showPage('home')">Dashboard</li>
+
+<li onclick="showPage('upload')" id="ownerMenu">
+Upload Premi Sheet
+</li>
+
+<li onclick="showPage('blog')">
+Edit Blog
+</li>
+
+<li onclick="showPage('produk')">
+Edit Produk
+</li>
+
+<li onclick="showPage('testimoni')">
+Edit Testimoni
+</li>
+
+<li onclick="showPage('logs')">
+Logs
+</li>
+
+<li onclick="logout()">
+Logout
+</li>
+
+</ul>
+
+</div>
+
+
+<!-- CONTENT -->
+<div class="content">
+
+<div id="home" class="page">
+
+<h1>Admin Dashboard</h1>
+
+<p>Selamat datang di dashboard MikeCitra.</p>
+
+</div>
+
+
+<div id="upload" class="page">
+
+<h1>Upload Data Premi</h1>
+
+<input type="file">
+
+<button>Upload XLS / Sheet</button>
+
+</div>
+
+
+<div id="blog" class="page">
+
+<h1>Edit Blog</h1>
+
+<textarea placeholder="Tulis artikel baru..."></textarea>
+
+<button>Simpan</button>
+
+</div>
+
+
+<div id="produk" class="page">
+
+<h1>Edit Produk</h1>
+
+<input placeholder="Nama produk">
+
+<textarea placeholder="Deskripsi"></textarea>
+
+<button>Simpan</button>
+
+</div>
+
+
+<div id="testimoni" class="page">
+
+<h1>Edit Testimoni</h1>
+
+<textarea placeholder="Testimoni baru"></textarea>
+
+<button>Simpan</button>
+
+</div>
+
+
+<div id="logs" class="page">
+
+<h1>Activity Logs</h1>
+
+<div id="logData">
+
+Belum ada aktivitas
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+<script src="admin.js"></script>
+
+</body>
+</html>
