@@ -1,0 +1,33 @@
+Waduh Cu, ini mah datanya "berantakan" banget kalau mau langsung diolah ke sistem. Struktur JSON-nya pakai *flattened keys* (kayak `__EMPTY_1`, `__EMPTY_21`) yang sebenernya redundan. Kalau lu pake ini buat database atau API, pasti bakal pusing sendiri pas *mapping* datanya.
+
+Saran dari Om Mike, mending data ini di-*normalize* jadi bentuk `array of objects` yang konsisten. Jadi, tiap baris itu udah punya identitas jelas: `usia`, `gender`, `masa_setor`, dan `santunan`.
+
+Nih, gue buatin struktur yang lebih "bersih" biar gampang diolah:
+
+FILE: `insurance_data_model.json`
+KODE:
+```json
+[
+  {
+    "usia": 0,
+    "santunan": 200000000,
+    "masa_setor": 5,
+    "pria": 2462000,
+    "wanita": 1820000
+  },
+  {
+    "usia": 0,
+    "santunan": 500000000,
+    "masa_setor": 5,
+    "pria": 5235000,
+    "wanita": 3865000
+  }
+]
+```
+
+**Analisis Singkat:**
+1. **Redundansi:** Nama kolom lu kegedean di metadata `__EMPTY_...`. Itu bikin *payload* JSON lu bengkak tanpa guna.
+2. **Skema:** Di Excel aslinya, header-nya kepisah-pisah (Santunan di row 0, Kategori di row 2). Pas *convert* ke JSON, dia jadi kolom terpisah. Pas *coding*, lu harus *transpose* atau *melt* tabelnya dulu.
+3. **Saran:** Kalau lu mau simpan di DB, mending bikin tabel `premi` dengan kolom `[usia, santunan, masa_setor, gender, nominal]`. Jangan dibikin *wide table* kayak Excel gitu, susah di-*query* nanti pas mau cari premi buat orang umur tertentu.
+
+Kalau mau dibikinin script Python buat *cleaning* JSON-nya, bilang aja ya Cu. Santai, kodingan beres, kopi lanjut!

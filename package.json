@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.99.0",
+    "axios": "^1.13.6",
+    "pdf-parse-fork": "^1.2.0",
+    "puppeteer-core": "^24.38.0",
+    "sharp": "^0.34.5",
+    "shelljs": "^0.10.0",
+    "telegraf": "^4.16.3",
+    "xlsx": "^0.18.5"
+  }
+}
