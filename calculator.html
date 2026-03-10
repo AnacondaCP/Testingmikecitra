@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Allianz Legacy Pro - MikeCitra</title>
+    <title>Kalkulator Allianz Power - MikeCitra</title>
     <link rel="stylesheet" href="css/calculator.css">
 </head>
 <body>
@@ -11,15 +11,23 @@
 <nav>
     <div class="logo">MikeCitra.ins</div>
     <div>
-        <a href="#">Home</a>
-        <a href="#" class="active">Calculator</a>
-        <a href="#">About</a>
+        <a href="index.html">Home</a>
+        <a href="calculator.html" class="active">Calculator</a>
+        <a href="contact.html">About</a>
     </div>
 </nav>
 
 <div class="container">
     <div class="card calc-card">
-        <h2 style="text-align: center; color: #38bdf8; margin-bottom: 20px;">Legacy Pro Allianz Premium</h2>
+        <h2 style="text-align: center; color: #38bdf8; margin-bottom: 5px;">Kalkulator Premi Otomatis</h2>
+        <p style="text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 0.9rem;">Data sinkron real-time dengan sistem Admin</p>
+
+        <div class="vvip-box" style="margin-bottom: 20px; border-color: #facc15;">
+            <label style="color: #facc15; font-weight: bold;">PILIH PRODUK ASURANSI</label>
+            <select id="productType" style="background: #0f172a; color: white; border: 1px solid #334155; padding: 10px; width: 100%; border-radius: 8px; margin-top: 5px;">
+                <option value="">Memuat data produk...</option>
+            </select>
+        </div>
 
         <div class="vvip-box">
             <p class="vvip-title">💰 INCOME REPLACEMENT METHOD</p>
@@ -46,7 +54,7 @@
             </div>
             <div>
                 <label>Usia Masuk</label>
-                <input id="umur" type="number" placeholder="20-42">
+                <input id="umur" type="number" placeholder="Contoh: 30">
             </div>
             <div>
                 <label>Jenis Kelamin</label>
@@ -59,15 +67,15 @@
                 <label>Masa Bayar</label>
                 <select id="paymentTerm">
                     <option value="5">5 Tahun</option>
-                    <option value="10">10 Tahun</option>
+                    <option value="10" selected>10 Tahun</option>
                     <option value="15">15 Tahun</option>
                 </select>
             </div>
             <div>
                 <label>Frekuensi</label>
                 <select id="paymentFreq">
-                    <option value="12">Bulanan</option>
-                    <option value="1">Tahunan</option>
+                    <option value="12">Bulanan (Monthly)</option>
+                    <option value="1">Tahunan (Yearly)</option>
                 </select>
             </div>
         </div>
@@ -82,17 +90,16 @@
         <div class="disclaimer-box">
             <p>⚠️ DISCLAIMER:</p>
             <ul>
-                <li>Hasil ini adalah <strong>simulasi sementara</strong> dan bukan kontrak resmi.</li>
+                <li>Hasil ini adalah <strong>simulasi sementara</strong> berdasarkan data Excel yang diupload.</li>
                 <li>Premi final ditentukan berdasarkan hasil <strong>underwriting</strong> Allianz.</li>
-                <li>Manfaat sudah termasuk <strong>Booster UP 50%</strong> sesuai ketentuan polis.</li>
             </ul>
         </div>
     </div>
 </div>
 
-<div id="hasilModal" class="hasil-modal">
+<div id="hasilModal" class="hasil-modal" style="display: none;">
     <div class="modal-content">
-        <h3>Hasil Simulasi Legacy Pro</h3>
+        <h3 id="modalTitle">Hasil Simulasi</h3>
         <h2 id="modalPremi" style="color:#facc15;"></h2>
         <div id="modalBenefit"></div>
         <button onclick="tutupModal()" class="btn-close">TUTUP</button>
@@ -100,5 +107,11 @@
 </div>
 
 <script src="js/calc.js"></script>
+<script>
+    // Fungsi tutup modal simple
+    function tutupModal() {
+        document.getElementById("hasilModal").style.display = "none";
+    }
+</script>
 </body>
 </html>
