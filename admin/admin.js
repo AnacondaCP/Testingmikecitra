@@ -1,4 +1,3 @@
-// Konfigurasi Akun
 const USERS = {
     admin: { pass: "mike123", role: "admin" },
     owner: { pass: "owner123", role: "owner" }
@@ -10,9 +9,7 @@ function login() {
     if (USERS[user] && USERS[user].pass === pass) {
         localStorage.setItem("role", USERS[user].role);
         window.location.href = "dashboard.html";
-    } else {
-        alert("Username atau Password Salah!");
-    }
+    } else { alert("Username atau Password Salah!"); }
 }
 
 function logout() {
@@ -26,13 +23,13 @@ function showPage(id) {
     if (target) target.style.display = "block";
 }
 
-// --- FUNGSI SAKTI: OTOMATIS MAP EXCEL ---
+// --- LOGIKA PEMBACA EXCEL (FIX MERGED CELLS) ---
 function prosesExcel() {
     const fileInput = document.getElementById('excelFile');
     const status = document.getElementById('statusUpload');
     if (!fileInput.files[0]) return alert("Pilih file excel dulu!");
 
-    status.innerHTML = "⏳ Menyingkronkan Produk...";
+    status.innerHTML = "⏳ Menyingkronkan Data...";
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -46,20 +43,20 @@ function prosesExcel() {
                 const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
                 globalDB[sheetName] = {};
 
-                // Mapping baris header sesuai format file lo
-                const rowUP = rows[2] || [];     // Baris 3: "SANTUNAN 200 JUTA"
-                const rowGender = rows[3] || []; // Baris 4: "PRIA / WANITA"
-                const rowTenor = rows[4] || [];  // Baris 5: "MASA SETOR 10 TAHUN"
+                // Ambil Baris Header (Sesuai File Lo)
+                const rowUP = rows[2] || [];     // Baris 3: SANTUNAN...
+                const rowGender = rows[3] || []; // Baris 4: PRIA/WANITA
+                const rowTenor = rows[4] || [];  // Baris 5: MASA SETOR...
 
                 for (let i = 5; i < rows.length; i++) {
                     const row = rows[i];
-                    const usia = row[1]; // Kolom B adalah Usia
+                    const usia = row[1]; // Kolom B (Index 1) adalah Usia
                     if (usia === undefined || usia === "") continue;
 
                     row.forEach((cellValue, colIndex) => {
-                        if (colIndex < 2 || !cellValue) return;
+                        if (colIndex < 2 || !cellValue || cellValue === 0) return;
 
-                        // Cari data ke kiri jika sel tersebut merged
+                        // Cari data ke kiri jika sel kosong (Merged Cell Fix)
                         let upRaw = findValidBack(rowUP, colIndex);
                         let genderRaw = findValidBack(rowGender, colIndex);
                         let tenorRaw = findValidBack(rowTenor, colIndex);
@@ -69,7 +66,7 @@ function prosesExcel() {
                             const tenor = tenorRaw.toString().replace(/\D/g, '');
                             const gender = genderRaw.toLowerCase().includes("pria") ? "pria" : "wanita";
                             
-                            // Simpan dengan key unik
+                            // Key Unik: pria_30_1000000000_10
                             const key = `${gender}_${usia}_${up}_${tenor}`;
                             globalDB[sheetName][key] = cellValue;
                         }
@@ -77,9 +74,8 @@ function prosesExcel() {
                 }
             });
 
-            // Simpan seluruh produk ke satu database
             localStorage.setItem("globalDB", JSON.stringify(globalDB));
-            status.innerHTML = `<span style="color:#10b981">✅ Berhasil! ${workbook.SheetNames.length} Produk Masuk Sistem.</span>`;
+            status.innerHTML = `<span style="color:#10b981">✅ BERHASIL! Data Excel Sinkron.</span>`;
         } catch (err) {
             console.error(err);
             status.innerHTML = "❌ Gagal baca format Excel.";
@@ -88,16 +84,10 @@ function prosesExcel() {
     reader.readAsArrayBuffer(fileInput.files[0]);
 }
 
+// Fungsi nyari nilai ke kolom sebelumnya (penting buat merged cells)
 function findValidBack(arr, index) {
     for (let i = index; i >= 0; i--) {
-        if (arr[i]) return arr[i];
+        if (arr[i] && arr[i].toString().trim() !== "") return arr[i];
     }
     return null;
 }
-
-window.onload = function() {
-    if (window.location.pathname.includes("dashboard.html") && !localStorage.getItem("role")) {
-        window.location.href = "login.html";
-    }
-    showPage("home");
-};
