@@ -1,81 +1,83 @@
-// 1. Ambil database dari LocalStorage
+// 1. Ambil Data
 const db = JSON.parse(localStorage.getItem("globalDB") || "{}");
 
-// 2. Load Dropdown Produk Otomatis
+// 2. Load Dropdown Produk
 window.addEventListener('DOMContentLoaded', () => {
     const productSelect = document.getElementById("productType");
     if (productSelect && Object.keys(db).length > 0) {
-        productSelect.innerHTML = ""; 
-        Object.keys(db).forEach(prodName => {
+        productSelect.innerHTML = "";
+        Object.keys(db).forEach(prod => {
             let opt = document.createElement("option");
-            opt.value = prodName;
-            opt.innerText = prodName;
+            opt.value = prod;
+            opt.innerText = prod;
             productSelect.appendChild(opt);
         });
     }
 });
 
-// Fungsi hapus titik agar angka bisa dihitung
-function cleanNum(str) { 
-    if (!str) return 0;
-    return str.toString().replace(/\./g, ""); 
-}
-
-// Fungsi tambah titik buat tampilan (Ribuan)
+// Helper: Format Titik Ribuan
 function formatRibuan(obj) {
     let val = obj.value.replace(/\D/g, "");
-    if (val !== "") {
-        obj.value = Number(val).toLocaleString('id-ID');
-    }
+    if (val !== "") obj.value = Number(val).toLocaleString('id-ID');
 }
 
-// Fungsi Gaji Ideal -> Ngisi UP Otomatis
+// Helper: Bersihkan Titik
+function cleanNum(str) {
+    return str ? str.toString().replace(/\./g, "") : "";
+}
+
+// Gaji ke UP Otomatis
 function hitungUP_VVIP() {
     const income = Number(cleanNum(document.getElementById("income").value));
-    const multiplier = Number(document.getElementById("yearProteksi").value);
-    const upInput = document.getElementById("up");
-
+    const mult = Number(document.getElementById("yearProteksi").value);
     if (income > 0) {
-        const saranUP = income * 12 * multiplier;
-        upInput.value = saranUP.toLocaleString('id-ID'); 
+        const saran = income * 12 * mult;
+        document.getElementById("upTarget").value = saran.toLocaleString('id-ID');
     }
 }
 
-// 3. LOGIKA TOMBOL HITUNG
+// 3. FUNGSI HITUNG UTAMA
 document.getElementById("hitungBtn").addEventListener("click", function() {
-    const selectedProd = document.getElementById("productType").value;
+    const product = document.getElementById("productType").value;
     const gender = document.getElementById("gender").value;
-    const age = document.getElementById("umur").value; // Sesuai ID di HTML
-    const upRaw = document.getElementById("up").value; // Ambil nilai yang ada titiknya
-    const upClean = cleanNum(upRaw); // Hapus titik: "1.000.000" -> "1000000"
+    const age = document.getElementById("umur").value;
+    const upRaw = cleanNum(document.getElementById("upTarget").value);
     const term = document.getElementById("paymentTerm").value;
     const freq = document.getElementById("paymentFreq").value;
 
-    if (!selectedProd || !db[selectedProd]) {
-        return alert("Pilih produk dulu! Pastikan sudah upload Excel di Admin.");
+    if (!db[product]) return alert("Pilih Produk dulu!");
+    if (!age || !upRaw) return alert("Isi Usia dan UP!");
+
+    // Normalisasi UP (Cek format 1.000.000.000, 1000, atau 1)
+    const variations = [
+        upRaw, 
+        (Number(upRaw)/1000000).toString(), 
+        (Number(upRaw)/1000000000).toString()
+    ];
+
+    let premiTahunan = null;
+    for (let v of variations) {
+        let key = `${gender}_${age}_${v}_${term}`;
+        if (db[product][key]) {
+            premiTahunan = db[product][key];
+            break;
+        }
     }
 
-    // Key pencarian (TANPA TITIK di UP)
-    const key = `${gender}_${age}_${upClean}_${term}`;
-    const premiTahunan = db[selectedProd][key];
-
     if (premiTahunan) {
-        // Hitung Bulanan (Faktor 0.088)
         const hasil = (freq === "12") ? Math.round(premiTahunan * 0.088) : premiTahunan;
         
-        // Tampilkan
         document.getElementById("hasilDisplay").style.display = "block";
-        const formatted = "Rp " + hasil.toLocaleString('id-ID');
-        document.getElementById("finalPremi").innerText = formatted + (freq === "12" ? " / Bln" : " / Thn");
+        document.getElementById("finalPremi").innerText = "Rp " + hasil.toLocaleString('id-ID') + (freq === "12" ? " / Bln" : " / Thn");
         
         document.getElementById("rincianBawah").innerHTML = `
-            <div style="background:rgba(56,189,248,0.1); padding:15px; border-radius:12px; border:1px solid #38bdf8;">
-                <p style="color:#38bdf8; font-weight:bold; margin:0;">TOTAL MANFAAT (UP + BOOSTER):</p>
-                <h2 style="color:#facc15; margin:10px 0;">Rp ${(upClean * 1.5).toLocaleString('id-ID')}</h2>
-                <p style="font-size:0.8rem; margin:0;">Produk: ${selectedProd} | Masa Bayar: ${term} Thn</p>
+            <div style="background:rgba(56, 189, 248, 0.1); padding:15px; border-radius:12px; border:1px solid #38bdf8; color:white;">
+                <p style="color:#38bdf8; font-weight:bold; margin:0;">TOTAL MANFAAT (UP+BOOSTER):</p>
+                <h2 style="color:#facc15; margin:10px 0;">Rp ${(Number(upRaw) * 1.5).toLocaleString('id-ID')}</h2>
+                <p style="font-size:0.8rem; margin:0;">Masa Bayar: ${term} Tahun</p>
             </div>
         `;
     } else {
-        alert(`Data Gagal Ditarik!\n\nSistem mencari data:\n- Produk: ${selectedProd}\n- Usia: ${age}\n- UP: ${upClean}\n- Tenor: ${term}\n\nPastikan di Excel lo ada angka di baris/kolom tersebut!`);
+        alert("Data tidak ditemukan di Excel untuk Usia " + age + " dan UP tersebut.");
     }
 });
