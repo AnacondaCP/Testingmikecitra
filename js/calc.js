@@ -1,63 +1,97 @@
-// Load Dropdown Produk Otomatis saat halaman dibuka
+// 1. Load Dropdown Produk Otomatis saat halaman dibuka
 window.addEventListener('DOMContentLoaded', () => {
     const db = JSON.parse(localStorage.getItem("globalDB") || "{}");
-    const productSelect = document.getElementById("productType"); // Pastikan ID ini ada di HTML
+    const productSelect = document.getElementById("productType");
     
-    if (productSelect && Object.keys(db).length > 0) {
-        productSelect.innerHTML = ""; // Bersihkan dummy
-        Object.keys(db).forEach(prodName => {
-            let opt = document.createElement("option");
-            opt.value = prodName;
-            opt.innerText = prodName;
-            productSelect.appendChild(opt);
-        });
+    if (productSelect) {
+        if (Object.keys(db).length > 0) {
+            productSelect.innerHTML = ""; 
+            Object.keys(db).forEach(prodName => {
+                let opt = document.createElement("option");
+                opt.value = prodName;
+                opt.innerText = prodName;
+                productSelect.appendChild(opt);
+            });
+        } else {
+            productSelect.innerHTML = "<option value=''>Upload Data di Admin Dulu</option>";
+        }
     }
 });
 
-function cleanNum(str) { return Number(str.replace(/\./g, "")); }
+// Fungsi pembersih angka (hapus titik agar bisa dihitung)
+function cleanNum(str) { 
+    if (!str) return 0;
+    return Number(str.toString().replace(/\./g, "")); 
+}
 
+// Fungsi Format Ribuan (Tambah Titik saat ngetik)
+function formatRibuan(obj) {
+    let val = obj.value.replace(/\D/g, "");
+    if (val !== "") {
+        obj.value = Number(val).toLocaleString('id-ID');
+    }
+}
+
+// FUNGSI INCOME REPLACEMENT (Hitung UP dari Gaji)
+function hitungUP_VVIP() {
+    const income = cleanNum(document.getElementById("income").value);
+    const multiplier = Number(document.getElementById("yearProteksi").value);
+    const upInput = document.getElementById("up");
+
+    if (income > 0) {
+        const saranUP = income * 12 * multiplier;
+        upInput.value = saranUP.toLocaleString('id-ID'); // Isi otomatis kolom UP Dasar
+    }
+}
+
+// PROSES HITUNG PREMI
 document.getElementById("hitungBtn").addEventListener("click", function() {
     const db = JSON.parse(localStorage.getItem("globalDB") || "{}");
     
-    // Ambil Input
+    // Ambil Input (Gue samain ID-nya dengan HTML lo)
     const selectedProd = document.getElementById("productType").value;
     const gender = document.getElementById("gender").value;
-    const age = document.getElementById("age").value;
-    const upTarget = document.getElementById("upTarget").value.replace(/\D/g, '');
+    const age = document.getElementById("umur").value; // ID di HTML lo adalah 'umur'
+    const upTarget = cleanNum(document.getElementById("up").value); // ID di HTML lo adalah 'up'
     const term = document.getElementById("paymentTerm").value;
     const freq = document.getElementById("paymentFreq").value;
 
-    if (!db[selectedProd]) return alert("Pilih produk atau upload data dulu di admin!");
+    if (!selectedProd || !db[selectedProd]) {
+        return alert("Pilih produk dulu! (Pastikan sudah upload Excel di Admin)");
+    }
 
-    // Cari di database hasil upload
+    if (!age || !upTarget) {
+        return alert("Isi Usia dan UP Dasar dulu!");
+    }
+
+    // Cari di database: pria_30_1000000000_10
     const key = `${gender}_${age}_${upTarget}_${term}`;
     const premiTahunan = db[selectedProd][key];
 
     if (premiTahunan) {
+        // Hitung Bulanan (0.088) atau Tahunan (tetap)
         const finalResult = (freq === "12") ? Math.round(premiTahunan * 0.088) : premiTahunan;
-        tampilkanHasil(finalResult, selectedProd, upTarget, term, freq);
+        
+        // Tampilkan Hasil
+        document.getElementById("hasilDisplay").style.display = "block";
+        const formatted = "Rp " + finalResult.toLocaleString('id-ID');
+        document.getElementById("finalPremi").innerText = formatted + (freq === "12" ? " / Bln" : " / Thn");
+        
+        // Rincian Manfaat
+        document.getElementById("rincianBawah").innerHTML = `
+            <div style="background:rgba(56, 189, 248, 0.1); padding:15px; border-radius:12px; border:1px solid #38bdf8; margin-top:15px;">
+                <p style="color:#38bdf8; margin:0; font-weight:bold;">ESTIMASI TOTAL MANFAAT:</p>
+                <h3 style="color:#facc15; margin:10px 0;">Rp ${(upTarget * 1.5).toLocaleString('id-ID')}</h3>
+                <p style="font-size:0.8rem; color:#cbd5e1; margin:0;">(UP Dasar + Booster 50%)<br>Masa Bayar: ${term} Tahun</p>
+            </div>
+        `;
+        
+        // Modal (Opsional kalau mau muncul)
+        if(document.getElementById("modalPremi")) {
+            document.getElementById("modalPremi").innerText = formatted;
+            document.getElementById("hasilModal").style.display = "flex";
+        }
     } else {
-        alert("Data tidak ditemukan! Cek apakah Usia dan UP sudah ada di Excel.");
+        alert(`Data tidak ditemukan untuk:\n- Usia: ${age}\n- UP: Rp ${upTarget.toLocaleString('id-ID')}\n- Tenor: ${term} thn\n\nPastikan data ini ada di file Excel yang Anda upload.`);
     }
 });
-
-function tampilkanHasil(nominal, namaProd, up, term, freq) {
-    const formatted = "Rp " + nominal.toLocaleString('id-ID');
-    document.getElementById("hasilDisplay").style.display = "block";
-    document.getElementById("finalPremi").innerText = formatted + (freq === "12" ? " / Bln" : " / Thn");
-    
-    // Update Rincian
-    document.getElementById("rincianBawah").innerHTML = `
-        <div style="background:rgba(56, 189, 248, 0.05); padding:15px; border-radius:12px; border:1px solid #334155;">
-            <p style="color:#38bdf8; margin:0; font-weight:bold;">PRODUK: ${namaProd}</p>
-            <h3 style="color:#facc15; margin:10px 0;">Total Manfaat: Rp ${(up * 1.5).toLocaleString('id-ID')}</h3>
-            <p style="font-size:0.8rem; margin:0;">Masa Bayar: ${term} Tahun | Premi sudah termasuk Booster 50%</p>
-        </div>
-    `;
-    
-    // Tampilkan Modal (Opsional)
-    if(document.getElementById("modalPremi")) {
-        document.getElementById("modalPremi").innerText = formatted;
-        document.getElementById("hasilModal").style.display = "flex";
-    }
-}
