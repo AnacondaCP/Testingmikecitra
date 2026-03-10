@@ -14,9 +14,7 @@
         <h2>MikeCitra Admin</h2>
         <ul>
             <li onclick="showPage('home')">🏠 Dashboard</li>
-            <li onclick="showPage('upload')" id="ownerMenu">📊 Update Premi (Excel)</li>
-            <li onclick="showPage('produk')">🎁 Kelola Produk</li>
-            <li onclick="showPage('testimoni')">💬 Testimoni</li>
+            <li onclick="showPage('upload')">📤 Update Premi (Excel)</li>
             <li onclick="logout()" style="color: #ef4444;">🚪 Logout</li>
         </ul>
     </div>
@@ -24,36 +22,19 @@
     <div class="content" style="padding: 20px; color: white; width: 100%;">
         
         <div id="home" class="page">
-            <h1>Halo, Selamat Datang!</h1>
-            <p>Silakan pilih menu di samping untuk mulai mengelola website.</p>
+            <h1>Halo Mike, Selamat Datang!</h1>
+            <p>Database lu aman terkendali. Pilih menu upload buat update data produk baru.</p>
         </div>
 
         <div id="upload" class="page" style="display:none;">
             <h1>Update Data Premi (XLSX)</h1>
-            <div class="card-admin">
-                <p>Upload file .xlsx untuk sinkronisasi harga premi kalkulator secara otomatis.</p>
-                <input type="file" id="excelFile" accept=".xlsx, .xls">
-                <button onclick="prosesExcel()" style="background:#10b981;">SINKRON DATA SEKARANG</button>
-                <p id="statusUpload"></p>
-            </div>
-        </div>
-
-        <div id="produk" class="page" style="display:none;">
-            <h1>Tambah Produk Baru</h1>
-            <div class="card-admin">
-                <input type="text" id="prodName" placeholder="Nama Produk Asuransi">
-                <input type="text" id="prodImg" placeholder="Link URL Foto Produk">
-                <textarea id="prodDesc" placeholder="Deskripsi Singkat Produk"></textarea>
-                <button onclick="simpanProduk()">TAMBAH PRODUK</button>
-            </div>
-        </div>
-
-        <div id="testimoni" class="page" style="display:none;">
-            <h1>Edit Testimoni</h1>
-            <div class="card-admin">
-                <input type="text" id="testiName" placeholder="Nama Client">
-                <textarea id="testiText" placeholder="Isi Testimoni"></textarea>
-                <button onclick="simpanTesti()">SIMPAN TESTIMONI</button>
+            <div class="card-admin" style="background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
+                <p>Upload file .xlsx (Contoh: LEGACY PRO.xlsx) untuk sinkronisasi harga premi secara otomatis.</p>
+                <input type="file" id="excelFile" accept=".xlsx, .xls" style="margin-bottom: 20px; display: block;">
+                <button onclick="prosesExcel()" style="background:#10b981; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    SINKRON DATA SEKARANG
+                </button>
+                <p id="statusUpload" style="margin-top: 15px; font-weight: bold;"></p>
             </div>
         </div>
 

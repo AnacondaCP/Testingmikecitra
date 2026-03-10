@@ -1,9 +1,7 @@
-// ==========================================
-// 1. SISTEM LOGIN & NAVIGASI (BIAR GAK ERROR)
-// ==========================================
+// --- DATABASE ADMIN LOGIC ---
 const USERS = {
     admin: { pass: "mike123", role: "admin" },
-    owner: { pass: "owner123", role: "owner" }
+    owner: { pass: "owner1233", role: "owner" }
 };
 
 function login() {
@@ -12,9 +10,7 @@ function login() {
     if (USERS[user] && USERS[user].pass === pass) {
         localStorage.setItem("role", USERS[user].role);
         window.location.href = "dashboard.html";
-    } else { 
-        alert("Username atau Password Salah, Cu!"); 
-    }
+    } else { alert("Salah Cu!"); }
 }
 
 function logout() {
@@ -28,15 +24,13 @@ function showPage(id) {
     if (target) target.style.display = "block";
 }
 
-// ==========================================
-// 2. LOGIKA PEMBACA EXCEL (LEGACY PRO SAKLEK)
-// ==========================================
+// --- LOGIKA PENYEDOT EXCEL (SMART MAPPING) ---
 function prosesExcel() {
     const fileInput = document.getElementById('excelFile');
     const status = document.getElementById('statusUpload');
-    if (!fileInput.files[0]) return alert("Pilih file excel dulu!");
+    if (!fileInput.files[0]) return alert("Pilih file excel-nya dulu anjing!");
 
-    status.innerHTML = "⏳ Menghubungkan ke Otak Mike... Mohon Tunggu.";
+    status.innerHTML = "⏳ Lagi nyalin data... Sabar.";
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -50,27 +44,28 @@ function prosesExcel() {
                 const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
                 globalDB[sheetName] = {};
 
-                // Koordinat Row Allianz Legacy Pro:
-                const rowSantunan = rows[2]; // Row 3
-                const rowGender = rows[3];    // Row 4
-                const rowTenor = rows[4];     // Row 5 (Masa Setor)
+                // Mapping Baris Berdasarkan File Lu
+                const rowSantunan = rows[2]; // Index 2 (Baris 3)
+                const rowGender = rows[3];    // Index 3 (Baris 4)
+                const rowTenor = rows[4];     // Index 4 (Baris 5)
 
                 for (let i = 5; i < rows.length; i++) {
                     const row = rows[i];
-                    const usia = row[1]; // Kolom B (Usia)
+                    const usia = row[1]; // Kolom B
                     if (usia === undefined || usia === "") continue;
 
                     row.forEach((cellValue, colIndex) => {
-                        if (colIndex < 2 || !cellValue) return;
+                        if (colIndex < 2 || !cellValue || isNaN(cellValue)) return;
 
+                        // Ambil info header dengan teknik findValidBack (Cari ke kiri kalo kosong)
                         let upRaw = findValidBack(rowSantunan, colIndex);
+                        let genderRaw = rowGender[colIndex];
                         let tenorRaw = findValidBack(rowTenor, colIndex);
-                        let genderLabel = rowGender[colIndex];
 
-                        if (upRaw && tenorRaw && genderLabel) {
-                            const up = upRaw.toString().replace(/[^0-9]/g, '');
-                            const tenor = tenorRaw.toString().replace(/[^0-9]/g, '');
-                            const gender = genderLabel.toLowerCase().includes("pria") ? "pria" : "wanita";
+                        if (upRaw && genderRaw && tenorRaw) {
+                            const up = upRaw.toString().replace(/\D/g, '');
+                            const tenor = tenorRaw.toString().replace(/\D/g, '');
+                            const gender = genderRaw.toLowerCase().includes("pria") ? "pria" : "wanita";
                             
                             // Key: pria_30_200000000_10
                             const key = `${gender}_${usia}_${up}_${tenor}`;
@@ -81,11 +76,11 @@ function prosesExcel() {
             });
 
             localStorage.setItem("globalDB", JSON.stringify(globalDB));
-            status.innerHTML = `<span style="color:#10b981">✅ DATABASE PERMANEN AKTIF!</span>`;
-            alert("Data Berhasil Disinkronkan!");
+            status.innerHTML = `<span style="color:#10b981">✅ BERHASIL! Data Excel Lu Udah Permanen di Browser.</span>`;
+            alert("Database Berhasil Diperbarui!");
         } catch (err) {
             console.error(err);
-            status.innerHTML = "❌ Excel Error. Cek format kolomnya!";
+            status.innerHTML = "❌ Format Excel lu salah anjing!";
         }
     };
     reader.readAsArrayBuffer(fileInput.files[0]);
