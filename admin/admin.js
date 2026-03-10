@@ -1,34 +1,34 @@
-// --- LOGIC LOGIN & DASHBOARD ---
 const USERS = {
     admin: { pass: "mike123", role: "admin" },
     owner: { pass: "owner123", role: "owner" }
 };
 
+// --- FUNGSI LOGIN ---
 function login() {
     const user = document.getElementById("username").value;
     const pass = document.getElementById("password").value;
     if (USERS[user] && USERS[user].pass === pass) {
+        localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("role", USERS[user].role);
         window.location.href = "dashboard.html";
-    } else { alert("Login Gagal, Cu!"); }
+    } else { alert("Username/Password salah, Cu!"); }
 }
 
 function logout() {
-    localStorage.removeItem("role");
+    localStorage.clear();
     window.location.href = "login.html";
 }
 
 function showPage(id) {
     document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-    const target = document.getElementById(id);
-    if (target) target.style.display = "block";
+    document.getElementById(id).style.display = "block";
 }
 
-// --- LOGIC PEMBACA EXCEL (KHUSUS VERCEL / LOCALSTORAGE) ---
+// --- FUNGSI PROSES EXCEL (SMART PARSER) ---
 function prosesExcel() {
     const fileInput = document.getElementById('excelFile');
     const status = document.getElementById('statusUpload');
-    if (!fileInput.files[0]) return alert("Mana filenya kontol?");
+    if (!fileInput.files[0]) return alert("Pilih file excel dulu!");
 
     status.innerHTML = "⏳ Lagi diperes datanya... Sabar.";
     const reader = new FileReader();
@@ -44,30 +44,27 @@ function prosesExcel() {
                 const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
                 globalDB[sheetName] = {};
 
-                // Mapping Baris Allianz Legacy Pro Lu:
-                const rowSantunan = rows[2]; // Baris 3 (SANTUNAN 200 JUTA, dst)
-                const rowGender = rows[3];    // Baris 4 (PRIA, WANITA)
-                const rowTenor = rows[4];     // Baris 5 (MASA SETOR)
+                const rowUP = rows[2] || [];     
+                const rowGender = rows[3] || []; 
+                const rowTenor = rows[4] || [];  
 
                 for (let i = 5; i < rows.length; i++) {
                     const row = rows[i];
-                    const usia = row[1]; // Kolom B (Index 1) adalah Usia
-                    if (usia === undefined || usia === "") continue;
+                    const usia = row[1]; 
+                    if (!usia) continue;
 
                     row.forEach((cellValue, colIndex) => {
-                        // Skip kolom index < 2 (Kolom A & B) dan pastikan ada nilai angkanya
-                        if (colIndex < 2 || !cellValue || isNaN(cellValue)) return;
+                        if (colIndex < 2 || !cellValue) return;
 
-                        let upRaw = findValidBack(rowSantunan, colIndex);
+                        let upRaw = findValidBack(rowUP, colIndex);
+                        let genderRaw = findValidBack(rowGender, colIndex);
                         let tenorRaw = findValidBack(rowTenor, colIndex);
-                        let genderLabel = rowGender[colIndex];
 
-                        if (upRaw && tenorRaw && genderLabel) {
-                            const up = upRaw.toString().replace(/[^0-9]/g, '');
-                            const tenor = tenorRaw.toString().replace(/[^0-9]/g, '');
-                            const gender = genderLabel.toLowerCase().includes("pria") ? "pria" : "wanita";
+                        if (upRaw && genderRaw && tenorRaw) {
+                            const up = upRaw.toString().replace(/\D/g, '');
+                            const tenor = tenorRaw.toString().replace(/\D/g, '');
+                            const gender = genderRaw.toLowerCase().includes("pria") ? "pria" : "wanita";
                             
-                            // Key format: pria_30_200000000_10
                             const key = `${gender}_${usia}_${up}_${tenor}`;
                             globalDB[sheetName][key] = Number(cellValue);
                         }
@@ -75,13 +72,11 @@ function prosesExcel() {
                 }
             });
 
-            // Simpan Permanen di Browser
             localStorage.setItem("globalDB", JSON.stringify(globalDB));
-            status.innerHTML = `<span style="color:#10b981">✅ DATA SINKRON SAKLEK!</span>`;
-            alert("Database Excel Lu Berhasil Masuk!");
+            status.innerHTML = `<span style="color:#10b981">✅ DATA SINKRON!</span>`;
+            alert("Database Excel Berhasil Masuk!");
         } catch (err) {
-            console.error(err);
-            status.innerHTML = "❌ Gagal baca Excel. Formatnya berantakan mungkin.";
+            status.innerHTML = "❌ Gagal baca format Excel.";
         }
     };
     reader.readAsArrayBuffer(fileInput.files[0]);
